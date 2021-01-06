@@ -1,0 +1,16 @@
+# Ignore node modules.
+/node_modules
+
+# Ignore Java version tracker.
+/java.json
+
+# Ignore cape cache/override.
+/c_cache
+/c_override
+
+# Ignore skin cache/override.
+/s_cache
+/s_override
+
+# Ignore MinecraftResources.
+/resources.xml

@@ -1,0 +1,16 @@
+{
+  "name": "amc-skins",
+  "version": "2.0.1",
+  "description": "Legacy skins server for ActionMC.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ."
+  },
+  "author": "Virtue <virtue@actionmc.ml>",
+  "license": "ISC",
+  "dependencies": {
+    "download-file-sync": "^1.0.4",
+    "express": "^4.17.1",
+    "sync-request": "^6.1.0"
+  }
+}
