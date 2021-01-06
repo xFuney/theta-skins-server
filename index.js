@@ -44,6 +44,12 @@ const Cape_DefaultFile = path.join(__dirname, 'defaults', 'default_cape.png')
 
 const Java_JSON = path.join(__dirname, "java.json");
 
+// This is where the base Linux install script is stored. This must
+// be a Bash file.
+
+const LinuxInstall_Bash = path.join(__dirname, "install.bash");
+const GeneratedInstall_Location = path.join(__dirname, "static", "install-linux")
+
 // ACTUAL CODE BEYOND THIS POINT \\
 
 // Initialise variables
@@ -120,6 +126,21 @@ if (!fs.existsSync(Resources_XML_Location)) {
     }
 }
 
+// Initialise install script.
+if (fs.existsSync(LinuxInstall_Bash)) {
+    console.log('[INFO] Generating Linux install script...')
+    let file = fs.readFileSync(LinuxInstall_Bash, {encoding: 'utf8'});
+    let sip = downloadFileSync('ifconfig.co/ip').toString().replace(/(\r\n|\n|\r)/gm, "");;
+    let new_file = file.replace('%%IP%%', sip)
+    try {
+        // try to save
+        fs.writeFileSync(GeneratedInstall_Location, new_file);
+        console.log('[INFO] Linux installer generated successfully!')
+    } catch {
+        console.log('[ERR] Failed to create linux installer.');
+        process.exit(1);
+    }
+}
 // Initialise functions.
 
 // add_to_java_poll
