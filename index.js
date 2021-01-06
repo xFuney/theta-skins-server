@@ -490,7 +490,7 @@ app.get('/statistics/java', async (req,res) => {
 // Returns:
 //    - Java versions that have "phoned home" on MC client startup.
 
-app.get('/statisticss/api/java', async (req,res) => {
+app.get('/statistics/api/java', async (req,res) => {
     var javajson;
     if (fs.existsSync(Java_JSON)) {
         javajson = require(Java_JSON)
