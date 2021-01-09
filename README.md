@@ -5,6 +5,8 @@ A replacement for the now-removed legacy Minecraft Skins API, as well as providi
 - Clone the repository.
 - Run ``npm install``
 - Populate the "resources" folder with the contents of `.minecraft/resources` (follow the readme file in the folder for more information)
+- Set environment variable COOKIE_SECRET to a long, secret value.
+- (Optional) Set environment variable NODE_PORT to the port you want the skin server to bind to (default is 6481).
 - Start the program with ``npm run test``
 
 The program will automatically make directories and XML files.
