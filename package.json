@@ -11,6 +11,10 @@
   "dependencies": {
     "download-file-sync": "^1.0.4",
     "express": "^4.17.1",
+    "express-fileupload": "^1.2.0",
+    "express-session": "^1.17.1",
+    "image-size": "^0.9.3",
+    "node-fetch": "^2.6.1",
     "sync-request": "^6.1.0"
   }
 }

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Action MC Skins</title>
+        <link rel="stylesheet" type="text/css" href="/style-dark.css">
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <style>
+            button {
+                padding: 10px;
+                padding-left: 20px;
+                padding-right: 20px;
+                text-align:center;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body class="body-dark">
+        <div class="title-frame center">
+            <h1>ActionMC Skins</h1>
+        </div>
+
+        <div class="main-frame center">
+            <h3>Skin Change</h3>
+            <h2>Please upload the skin you wish to put on your character:</h2>
+            <form action="/upload_skin" method="POST" enctype="multipart/form-data">
+                <input type="file" name="upload" accept="image/png" />
+                <br />
+                <button type="submit">Submit</button>
+            </form>
+            <h3>Maximum file size is 16KB (16384 bytes). Skin must be a PNG file.</h3>
+            <h4></h4>
+        </div>
+
+
+        
+        <div class="hidden-frame center">
+            <p>Powered by Theta, a custom skin server solution by Virtue.</p>
+        </div>
+    </body>
+</html>

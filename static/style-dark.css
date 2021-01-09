@@ -1,0 +1,76 @@
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-image: url("/tile.png");
+    background-repeat: repeat;
+}
+
+.body-dark {
+    background-image: url("/tile_dark.png");
+    background-repeat: repeat;
+}
+
+.alert-frame {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align:center;
+    background-color: #800080;
+    color: white;
+    margin: 20px;
+    width: 90%;
+    height: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.invis {
+    display: none;
+}
+.title-frame {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align:center;
+    background-color: #3a3a3a;
+    color: white;
+    margin: 50px;
+    width: 90%;
+    height: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.main-frame {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align:center;
+    background-color: #4a4a4a;
+    color: white;
+    margin: 50px;
+    width: 90%;
+    height: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.server-frame {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align:center;
+    background-color: #606060;
+    color: white;
+    margin: 50px;
+    width: 90%;
+    height: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hidden-frame {
+    text-align:center;
+    color: white;
+    margin: 50px;
+    width: 90%;
+    height: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}

@@ -6,6 +6,10 @@
 const path = require('path');
 const fs = require('fs');
 const request = require('sync-request');
+const fetch = require('node-fetch');
+var session = require('express-session');
+const fileUpload = require('express-fileupload');
+var sizeOf = require('image-size');
 
 function downloadFileSync(url) {
     return require('child_process')
@@ -371,6 +375,23 @@ function get_cape(uname) {
     }
 }
 
+// oauth_to_uuid
+// Purpose: Uses mc-oauth.net to translate an OAuth code into a UUID.
+// Returns: Nothing - this is a callback based function.
+
+function oAuthToUUID(token, cb) {
+    return fetch('https://mc-oauth.net/api/api?token', {
+       method: "GET",
+       headers: {
+          "token": token
+       }
+    }).then(response => {
+       return response.json();
+    }).then(json => {
+       cb(json);
+    });
+}
+
 // rm_dir
 // Purpose: removes all files in a directory.
 // Returns: nothing.
@@ -417,15 +438,231 @@ rm_dir(Cape_CacheLocation);
 console.log('[CACHE] Cape cache wipe completed.')
 
 // Initialise express.
-const express = require('express')
+const express = require('express');
+const { O_TRUNC } = require('constants');
+const { resourceUsage } = require('process');
 const app = express()
-const port = 80
+const port = process.env.NODE_PORT || 6481
+
+// Initialise session cookie middleware.
+app.set('trust proxy', 1) // trust first proxy
+app.use(session({
+  secret: process.env.COOKIE_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false, maxAge: 7200000 }
+}))
 
 // Initialise static folders.
 app.use(express.static('static'))
 app.use('/MinecraftResources', express.static('resources'))
 
+// Initialise middleware.
+app.use(express.urlencoded());
+
+app.use(fileUpload());
+
 // Initialise routers.
+
+// POST /authenticate
+// Parameters:
+//   code: OAuth code from MC-OAuth.
+// Returns:
+//   301 redirect to appropriate page.
+
+app.post('/authenticate', (req,res) => {
+    oAuthToUUID(req.body.code, (response) => {
+        if (response.status !== "fail") {
+            // add to session
+            req.session.username = response.username
+            req.session.uuid = response.uuid
+
+            // redirect
+            res.redirect('/skin_landing')
+        } else {
+            // throw back to auth page.
+            res.redirect('/auth.html')
+        }
+    })
+})
+
+// GET /end_session
+// No parameters.
+// Returns:
+//   redirect to home page with user session expired.
+
+app.get('/end_session', (req,res) => {
+    req.session.regenerate(function(err) {
+        // will have a new session here
+        res.redirect('/')
+    })
+})
+
+// GET /skin_landing
+// No parameters.
+// Returns:
+//   landing page
+
+app.get('/skin_landing', (req,res) => {
+    if (req.session.username !== undefined) {
+        let temp = fs.readFileSync(path.join(__dirname, 'templates', 'landing.html')).toString();
+        temp = temp.replace('%%USERNAME%%', req.session.username)
+        temp = temp.replace('%%USERNAME%%', req.session.username)
+        temp = temp.replace('%%USERNAME%%', req.session.username)
+        temp = temp.replace('%%USERNAME%%', req.session.username)
+        temp = temp.replace('%%USERNAME%%', req.session.username)
+        temp = temp.replace('%%USERNAME%%', req.session.username)
+        res.send(temp)
+    } else {
+        res.redirect('/')
+    }
+})
+
+// GET /skin_change
+// No parameters
+// Returns:
+//   skin changing page
+
+app.get('/skin_change', (req,res) => {
+    if (req.session.username !== undefined) {
+        let temp = fs.readFileSync(path.join(__dirname, 'templates', 'skin_change.html')).toString();
+        temp = temp.replace('%%USERNAME%%', req.session.username)
+        res.send(temp)
+    } else {
+        res.redirect('/')
+    }
+})
+
+// POST /upload_skin
+// No parameters.
+// Returns:
+//   success or fail page
+
+app.post('/upload_skin', (req,res) => {
+    if (req.session.username == undefined) {
+        // Don't even look at it.
+        return res.redirect('/')
+    }
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.redirect('/skin_change');
+      }
+
+      if (req.files.upload.mimetype != "image/png") {
+        return res.redirect('/skin_change');
+      }
+    
+      // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+      let sampleFile = req.files.upload;
+    
+      // Use the mv() method to place the file somewhere on your server
+      sampleFile.mv(path.join(Skin_OverrideLocation, req.session.username + '.png'), function(err) {
+        if (err) {
+          return res.redirect('/failure');
+        }
+        
+        var dimensions = sizeOf(path.join(Skin_OverrideLocation, req.session.username + '.png'));
+
+        if (dimensions.width == "64" && dimensions.height == "32") {
+            // classic steve skin
+            res.redirect('/success');
+        } else if (dimensions.width == "64" && dimensions.height == "64") {
+            // non-classic skins (alex or something)
+            res.redirect('/success')
+        } else {
+            // user must be trying to test us.
+            fs.unlinkSync(path.join(Skin_OverrideLocation, req.session.username + '.png'))
+            res.sendFile(path.join(__dirname, 'templates', 'size_too_big.html'))
+        }
+    
+      });
+})
+
+// GET /cape_change
+// No parameters
+// Returns:
+//   cape changing page
+
+app.get('/cape_change', (req,res) => {
+    if (req.session.username !== undefined) {
+        let temp = fs.readFileSync(path.join(__dirname, 'templates', 'cape_change.html')).toString();
+        temp = temp.replace('%%USERNAME%%', req.session.username)
+        res.send(temp)
+    } else {
+        res.redirect('/')
+    }
+})
+
+// POST /upload_cape
+// No parameters.
+// Returns:
+//   success or fail page
+
+app.post('/upload_cape', (req,res) => {
+    if (req.session.username == undefined) {
+        // Don't even look at it.
+        return res.redirect('/')
+    }
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.redirect('/cape_change');
+      }
+
+      if (req.files.upload.mimetype != "image/png") {
+        return res.redirect('/cape_change');
+      }
+    
+      // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+      let sampleFile = req.files.upload;
+    
+      // Use the mv() method to place the file somewhere on your server
+      sampleFile.mv(path.join(Cape_OverrideLocation, req.session.username + '.png'), function(err) {
+        if (err) {
+          return res.redirect('/failure');
+        }
+
+        var dimensions = sizeOf(path.join(Cape_OverrideLocation, req.session.username + '.png'));
+
+        if (dimensions.width == "64" && dimensions.height == "32") {
+            // cape, GOOD
+            res.redirect('/success');
+        } else {
+            // user must be trying to test us.
+            fs.unlinkSync(path.join(Cape_OverrideLocation, req.session.username + '.png'))
+            res.sendFile(path.join(__dirname, 'templates', 'size_too_big.html'))
+        }
+      });
+})
+
+// GET /success
+// No parameters.
+// Returns:
+//   success page
+
+app.get('/success', (req,res) => {
+    if (req.session.username !== undefined) {
+        let temp = fs.readFileSync(path.join(__dirname, 'templates', 'success.html')).toString();
+        temp = temp.replace('%%USERNAME%%', req.session.username)
+        res.send(temp)
+    } else {
+        res.redirect('/')
+    }
+})
+
+// GET /failure
+// No parameters.
+// Returns:
+//   failure page
+
+app.get('/failure', (req,res) => {
+    if (req.session.username !== undefined) {
+        let temp = fs.readFileSync(path.join(__dirname, 'templates', 'failure.html')).toString();
+        temp = temp.replace('%%USERNAME%%', req.session.username)
+        res.send(temp)
+    } else {
+        res.redirect('/')
+    }
+})
 
 // GET /MinecraftSkins/:username
 // Paramters:
